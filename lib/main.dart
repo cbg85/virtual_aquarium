@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'screens/aquarium_screen.dart';
+import 'package:virtual_aquarium/screens/aquarium_screen.dart';
 
 void main() {
-  runApp(const VirtualAquariumApp());
+  runApp(VirtualAquariumApp());
 }
 
 class VirtualAquariumApp extends StatelessWidget {
@@ -13,8 +13,10 @@ class VirtualAquariumApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Virtual Aquarium',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const AquariumScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: AquariumScreen(), // Removed 'const' here
     );
   }
 }

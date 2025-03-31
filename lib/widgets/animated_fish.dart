@@ -1,54 +1,50 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import '../models/fish.dart';
+import 'dart:math';
 
 class AnimatedFish extends StatefulWidget {
-  final Fish fish;
-  const AnimatedFish({required this.fish, super.key});
+  final Color color;
+  final double speed;
+
+  const AnimatedFish({required this.color, required this.speed, Key? key}) : super(key: key);
 
   @override
   _AnimatedFishState createState() => _AnimatedFishState();
 }
 
-class _AnimatedFishState extends State<AnimatedFish> with SingleTickerProviderStateMixin {
+class _AnimatedFishState extends State<AnimatedFish> with TickerProviderStateMixin {
   late AnimationController _controller;
-  late double leftPosition;
-  late double topPosition;
-  final Random _random = Random();
+  late Animation<double> _xAnimation;
+  late Animation<double> _yAnimation;
+  double _xPosition = 0;
+  double _yPosition = 0;
 
   @override
   void initState() {
     super.initState();
-    leftPosition = _random.nextDouble() * 280;
-    topPosition = _random.nextDouble() * 280;
-
     _controller = AnimationController(
-      duration: Duration(seconds: widget.fish.speed.toInt()),
+      duration: Duration(seconds: widget.speed.toInt()),
       vsync: this,
     )..repeat();
 
-    _controller.addListener(() {
+    _xAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
+    );
+
+    _yAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
+    );
+
+    _xAnimation.addListener(() {
       setState(() {
-        leftPosition += (_random.nextBool() ? 1 : -1) * widget.fish.speed;
-        topPosition += (_random.nextBool() ? 1 : -1) * widget.fish.speed;
-        leftPosition = leftPosition.clamp(0, 280);
-        topPosition = topPosition.clamp(0, 280);
+        _xPosition = _xAnimation.value * 300; // Container width limit
       });
     });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 100),
-      left: leftPosition,
-      top: topPosition,
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(color: widget.fish.color, shape: BoxShape.circle),
-      ),
-    );
+    _yAnimation.addListener(() {
+      setState(() {
+        _yPosition = _yAnimation.value * 300; // Container height limit
+      });
+    });
   }
 
   @override
@@ -56,4 +52,21 @@ class _AnimatedFishState extends State<AnimatedFish> with SingleTickerProviderSt
     _controller.dispose();
     super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: _xPosition,
+      top: _yPosition,
+      child: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
 }
+
